@@ -15,8 +15,8 @@ const isCustomer = require('../middlewares/isCustomer');
 
 router.post('/', isAuthenticated, isCustomer, store)
 router.get('/', index)
-router.get('/:id', show)
+router.get('/myReviwes',isAuthenticated, isCustomer, show)
 router.put('/:id', isAuthenticated, isAuthorized, update)
-router.delete('/:id', isAuthenticated, isAuthorized, destroy)
+router.delete('/:id', isAuthenticated, isCustomer, destroy)
 
 module.exports = router;

@@ -8,16 +8,18 @@ var store = async function (req, res, next) {
         messages: [],
         data: {}
     }
+    var id = req?.user?.id
+
     var content = req?.body?.content?.trim()
     var stars = req?.body?.stars?.trim()
-    var customerId = req?.body?.customerId
+    var customerId = id
 
     if (content?.length < 6) {
         result.success = false
         result.messages.push('Please check your content')
         return res.send(result)
     }
-    if (stars?.length < 0) {
+    if (!stars) {
         result.success = false
         result.messages.push('Please check your stars')
         return res.send(result)
@@ -51,9 +53,16 @@ var show = async function (req, res, next) {
         data: {},
         messages: []
     }
-    var id = req?.params?.id
-    var review = await models.Review.findByPk(id, 
+
+    const where = {}
+
+    if (req?.user?.type == 'customer') {
+        where.customerId = req.user.id
+    }
+
+    var review = await models.Review.findAll(
         {
+            where: where,
             attributes: {exclude:["createdAt","updatedAt"]
         },
         include: [

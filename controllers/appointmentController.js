@@ -13,7 +13,7 @@ var store = async function (req, res, next) {
     var userId = req?.user?.id
     
     var datetime = req?.body?.datetime
-    var isHome = (req?.body?.isHome === 'true')
+    var isHome = (req?.body?.isHome === true)
     var note = req?.body?.note?.trim()
     // var total = req?.body?.total?.trim()
     var serviceId = req?.body?.serviceId
@@ -74,7 +74,6 @@ var store = async function (req, res, next) {
         total *= 2
     }
     
-
     var [newAppointment, created] = await models.Appointment.findOrCreate({
         where:{
             datetime:oppintmentDate,
@@ -151,7 +150,6 @@ var show = async function (req, res, next) {
     res.send(result)
 }
 
-
 var index = async function (req, res, next) {
     var result = {
         success: true,
@@ -159,9 +157,9 @@ var index = async function (req, res, next) {
         messages: []
     }
     const where = {}
-    if (req.user.type == 'customer') {
+    if (req?.user?.type == 'customer') {
         where.customerId = req.user.id
-    } else if (req.user.type == 'worker') {
+    } else if (req?.user?.type == 'worker') {
         where.workerId = req.user.id
     }
     var appointments = await models.Appointment.findAll(
@@ -206,6 +204,56 @@ var index = async function (req, res, next) {
     }
     res.send(result)
 }
+
+var allApp = async function (req, res, next) {
+    var result = {
+        success: true,
+        data: {},
+        messages: []
+    }
+    
+    var appointments = await models.Appointment.findAll(
+        {
+            attributes: {
+                exclude: ["createdAt", "updatedAt"]
+            },
+            include: [
+                {
+                    model: models.Address,
+                    attributes: {
+                        exclude: ["createdAt", "updatedAt"]
+                    },
+                },
+                {
+                    model: models.Service,
+                    attributes: {
+                        exclude: ["createdAt", "updatedAt"]
+                    },
+                },
+                {
+                    model: models.Worker,
+                    attributes: {
+                        exclude: ["createdAt", "updatedAt"]
+                    },
+                },
+                {
+                    model: models.Customer,
+                    attributes: {
+                        exclude: ["createdAt", "updatedAt"]
+                    },
+                }
+            ]
+        })
+    if (Array.isArray(appointments)) {
+        result.data = (appointments)
+    } else {
+        res.status(404)
+        res.success = false
+        res.messages.push('Please try again later')
+    }
+    res.send(result)
+}
+
 var destroy = async function (req, res, next) {
     var result = {
         success: true,
@@ -228,6 +276,7 @@ var destroy = async function (req, res, next) {
     }
     res.send(result)
 }
+
 var update = async function (req, res, next) {
     var response = {
         success: true,
@@ -433,5 +482,6 @@ module.exports = {
     show,
     update,
     destroy,
-    schedule
+    schedule,
+    allApp
 }

@@ -23,7 +23,7 @@ router.post('/', upload.single('image'), store);
 router.get('/profile',isAuthenticated, isCustomer, profile);
 router.get('/:id',isAuthenticated, isCustomer, show);
 router.get('/', index);
-router.delete('/:id',isAuthorized,destroy);
+router.delete('/:id',isAuthenticated,isAuthorized,destroy);
 router.put('/profile/update',isAuthenticated,isCustomer,upload.single('image'),update)
 router.post('/login',login)
 
